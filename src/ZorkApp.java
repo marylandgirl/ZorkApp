@@ -144,6 +144,7 @@ if(testCount >= 1){
         msgInfoArray[2] = testStr;
         msgInfoArray[3] = Integer.toString(allVisits);
         msgInfoArray[4] = Boolean.toString(secretFound);
+        roomsArray[idx] = cRoom;
         return msgInfoArray;
     } // end toRooms
 } // end class
