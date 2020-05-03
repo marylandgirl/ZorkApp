@@ -56,7 +56,7 @@ public class Room {
         visitCount = visits;
     }
  
-    int setVisitCount() {
+    int getVisitCount() {
         return visitCount;
     }
  

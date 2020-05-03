@@ -22,7 +22,7 @@ public class ZorkApp {
         Room[] roomsArray = new Room[8];
         int currentRoom;
         boolean done = false;
-        String[] msgInfoArray = new String[3];
+        String[] msgInfoArray;
         boolean foundSecret = false;
   
         //method call to initialized the HashMaps with data
@@ -30,7 +30,29 @@ public class ZorkApp {
   
         //method call to create instances of Rooms and
         //update the roomsArray
-        fillRooms(roomNames, roomContents, roomDoors);
+        fillRooms(roomNames, roomContents, roomDoors,roomsArray);
+
+int testCount = 0;
+        currentRoom = 1;
+        do{
+testCount++;
+            msgInfoArray = new String[5];
+            toRooms(currentRoom,allRoomVisits,roomsArray,msgInfoArray,foundSecret);
+            allRoomVisits = Integer.parseInt(msgInfoArray[3]);
+            foundSecret = Boolean.parseBoolean(msgInfoArray[4]);
+            System.out.println("You are in the " + msgInfoArray[0]);
+            System.out.println("This room has " + msgInfoArray[1] + '\n');
+            System.out.println("Enter direction or 'Q' to quit ");
+            System.out.print("These are your directional choices... ");
+            System.out.printf("%s\n",msgInfoArray[2] + '\n');
+            System.out.print("Enter the first letter of direction ");
+            System.out.println("i.e. (N)orth,(S)outh,(E)ast,(W)est");
+            System.out.print("followed by the room number. ");
+            System.out.println("So, N1 means North to room 1\n");
+if(testCount >= 1){
+    done = true;
+}
+        }while(!done);
     } // end main
 
     static void populateMaps(HashMap<Integer,String> rNames, HashMap <Integer,String> rContents,HashMap <Integer,String> rDoors ){
@@ -43,16 +65,16 @@ public class ZorkApp {
         rNames.put(7,"parlor");     
         rNames.put(8,"secret room");     
   
-        rContents.put(1,"dead scorpion");
-        rContents.put(2,"piano");
+        rContents.put(1,"a dead scorpion");
+        rContents.put(2,"a piano");
         rContents.put(3,"spiders");
-        rContents.put(4,"kitchen");
-        rContents.put(5,"dust,empty box");
+        rContents.put(4,"a kitchen");
+        rContents.put(5,"some dust and an empty box");
         rContents.put(6,"3 walking skeletons");
-        rContents.put(7,"piles of gold");
-        rContents.put(8,"treasure chest");
+        rContents.put(7,"some piles of gold");
+        rContents.put(8,"a treasure chest");
   
-        rDoors.put(1,"N1");
+        rDoors.put(1,"N2");
         rDoors.put(2,"S1,W3,E4");
         rDoors.put(3,"E2,N5");
         rDoors.put(4,"W2,N7");
@@ -63,7 +85,7 @@ public class ZorkApp {
        
     } // end populateMaps
 
-    static void fillRooms(HashMap<Integer,String> rNames, HashMap <Integer,String> rContents,HashMap <Integer,String> rDoors ){
+    static void fillRooms(HashMap<Integer,String> rNames, HashMap <Integer,String> rContents,HashMap <Integer,String> rDoors, Room[] rArray ){
         int roomNumber = 0;
         String nameOfRoom = "";
         String contentsInRoom = "";
@@ -81,8 +103,47 @@ public class ZorkApp {
             room.setRoomContents(contentsInRoom);
             room.setRoomDoors(doorsInRoom);
             room.setVisitCount(visitCount);
-            roomsArray[roomArrayIdx] = room;
+            rArray[roomArrayIdx] = room;
             roomArrayIdx++;
         } // end for
     } // end fillRooms 
+
+    static String[] toRooms(int cRoomNum, int allVisits,Room[] roomsArray, String[] msgInfoArray, boolean secretFound){
+        if (cRoomNum == 8) {
+            secretFound = true;
+        }
+        allVisits++;
+        int idx = cRoomNum - 1;
+        Room cRoom = roomsArray[idx];
+        String testStr="";
+        String[] testArray = null;
+        int visitCnt = cRoom.getVisitCount();
+        visitCnt++;
+        cRoom.setVisitCount(visitCnt);
+        msgInfoArray[0] = cRoom.getRoomName();
+        msgInfoArray[1] = cRoom.getRoomContents();
+        String connectRms = cRoom.getRoomDoors();
+        if (cRoomNum == 6 && !secretFound ) {
+            if ((visitCnt * 4) < allVisits ) {
+                testStr = connectRms.replaceAll("[A-Z]8","");
+                testStr = testStr.replaceAll(",,",",");
+                testStr = testStr.replaceAll("N","North to room ");
+            } else if ((visitCnt * 4) >= allVisits) {
+                testStr = connectRms.replaceAll("N","North to room ");
+            }
+        } else {
+            testStr = connectRms.replaceAll("N","North to room ");
+        }
+        testStr = testStr.replaceAll("S","South to room ");
+        testStr = testStr.replaceAll("E","East to room ");
+        testStr = testStr.replaceAll("W","West to room ");
+        testStr = testStr.replaceAll(","," or ");
+        if (testStr.endsWith(" or ")) {
+            testStr = testStr.substring(0,testStr.length() - 4);
+        }
+        msgInfoArray[2] = testStr;
+        msgInfoArray[3] = Integer.toString(allVisits);
+        msgInfoArray[4] = Boolean.toString(secretFound);
+        return msgInfoArray;
+    } // end toRooms
 } // end class
