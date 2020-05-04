@@ -21,9 +21,13 @@ public class ZorkApp {
         int allRoomVisits = 0;
         Room[] roomsArray = new Room[8];
         int currentRoom;
+        int previousRoom;
         boolean done = false;
         String[] msgInfoArray;
         boolean foundSecret = false;
+        Scanner keyboard = new Scanner(System.in);
+        String kbInput = "";
+        String errMsg = "";
   
         //method call to initialized the HashMaps with data
         populateMaps(roomNames, roomContents, roomDoors);
@@ -32,26 +36,77 @@ public class ZorkApp {
         //update the roomsArray
         fillRooms(roomNames, roomContents, roomDoors,roomsArray);
 
-int testCount = 0;
+        previousRoom = 0;
         currentRoom = 1;
+        errMsg = "The direction entered is invalid. Please try again.\n";
         do{
-testCount++;
             msgInfoArray = new String[5];
             toRooms(currentRoom,allRoomVisits,roomsArray,msgInfoArray,foundSecret);
             allRoomVisits = Integer.parseInt(msgInfoArray[3]);
             foundSecret = Boolean.parseBoolean(msgInfoArray[4]);
-            System.out.println("You are in the " + msgInfoArray[0]);
-            System.out.println("This room has " + msgInfoArray[1] + '\n');
-            System.out.println("Enter direction or 'Q' to quit ");
-            System.out.print("These are your directional choices... ");
-            System.out.printf("%s\n",msgInfoArray[2] + '\n');
+            System.out.print("You are in the " + msgInfoArray[0] + " ");
+            System.out.println("and this room has " + msgInfoArray[1]+"." );
+            System.out.print("Which direction would you like to go ... ");
+            System.out.printf("%s\n",msgInfoArray[2] + "?\n");
             System.out.print("Enter the first letter of direction ");
             System.out.println("i.e. (N)orth,(S)outh,(E)ast,(W)est");
             System.out.print("followed by the room number. ");
-            System.out.println("So, N1 means North to room 1\n");
-if(testCount >= 1){
-    done = true;
-}
+            System.out.println("So, N1 means North to room 1");
+            System.out.println("Or you could enter 'Q' to quit ");
+            kbInput = keyboard.nextLine();
+            previousRoom = currentRoom;
+            currentRoom = Character.getNumericValue(kbInput
+                        .charAt(kbInput.length()-1));
+            String validStrTst = roomDoors.get(previousRoom);
+            if (kbInput.trim().toUpperCase().equals("Q")) {
+                done = true;
+            }   else if (kbInput.length() > 1) {
+                kbInput = Character.toString(kbInput.trim().charAt(0))
+                        .toUpperCase() + kbInput.charAt(kbInput.length()-1);
+                if ("".equals(validStrTst)) {
+                    System.out.println(errMsg);
+                    if (previousRoom > 0) {
+                       currentRoom = 1;
+                    } else {
+                       currentRoom = previousRoom;
+                    }
+                } else if (!validStrTst.contains(",")) {
+                     if (kbInput.equals(validStrTst) ) {
+                         toRooms(currentRoom,allRoomVisits,roomsArray,msgInfoArray,foundSecret);
+                     } else {
+                         System.out.println(errMsg);
+                         if (previousRoom > 0) {
+                            currentRoom = 1;
+                         } else {
+                            currentRoom = previousRoom;
+                         }
+                     }
+                } else {
+                    String[] validArrayTst = validStrTst.split(",");
+                    boolean found = false;
+                    for ( int i = 0; i < validArrayTst.length; i++) {
+                        if (validArrayTst[i].equals(kbInput)) {
+                           found = true;
+                           toRooms(currentRoom,allRoomVisits,roomsArray,msgInfoArray,foundSecret);
+                        }
+                    }
+                    if (!found) {
+                        System.out.println(errMsg);
+                        if (previousRoom > 0) {
+                           currentRoom = 1;
+                        } else {
+                           currentRoom = previousRoom;
+                        }
+                    }
+                }
+            } else {
+                System.out.println(errMsg);
+                if (previousRoom > 0) {
+                   currentRoom = 1;
+                } else {
+                   currentRoom = previousRoom;
+                }
+            }
         }while(!done);
     } // end main
 
